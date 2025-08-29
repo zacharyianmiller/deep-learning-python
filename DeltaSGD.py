@@ -1,9 +1,6 @@
 import numpy as np
 import numpy.typing
 import random
-import sys
-
-from numpy.matlib import zeros
 
 import activation.sigmoid as sigmoid
 
