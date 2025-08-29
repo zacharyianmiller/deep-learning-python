@@ -27,7 +27,7 @@ def delta_sgd(W: Tensor, X: Tensor, D: Tensor):
         dW = alpha * delta * x  # delta rule
 
         for w in range(X.shape[1]):
-            W[w] += dW[w]
+            W[w] += dW[w].item()
 
     return W
 
@@ -60,7 +60,7 @@ def main():
     for k in range(X.shape[0]):
         x = np.vstack(X[k, :])  #  each row of X, transformed
         v = W @ x
-        y[k] = sigmoid.calc(v)
+        y[k] = sigmoid.calc(v.item())
 
     # Output inferred / predicted values
     print('Predicted output values:\n')
@@ -69,13 +69,4 @@ def main():
 
     return 0
 
-
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("\nScript interrupted by user")
-        sys.exit(1)
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        sys.exit(1)
+if __name__ == "__main__": main()
