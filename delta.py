@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.typing
 import random
+import time
 
 import activation.sigmoid as sigmoid
 
@@ -68,18 +69,21 @@ def delta_main(processor_type: str, num_epochs: int):
     ])
 
     # Initial weights(random between - 1 and 1)
-    # W: Tensor = np.zeros(X.shape[1])
-    # for n in range(W.shape[0]):
-    #     W[n] = 2 * random.random() - 0.5
+    W: Tensor = np.zeros(X.shape[1])
+    for n in range(W.shape[0]):
+        W[n] = 2 * random.random() - 0.5
 
     W: Tensor = np.array([-0.4, 0.25, 0.95])
 
     # Train model
+    train_start = time.perf_counter()
     for epoch in range(num_epochs):
         if processor_type == "sgd":
             W = delta_sgd(W, X, D)
         elif processor_type == "batch":
             W = delta_batch(W, X, D)
+    train_end = time.perf_counter()
+    print(f"Training performed in {train_end - train_start:0.4f} seconds")
 
     # Infer data
     y = np.zeros(X.shape[0])
@@ -89,8 +93,8 @@ def delta_main(processor_type: str, num_epochs: int):
         y[k] = sigmoid.calc(v.item())
 
     # Output inferred / predicted values
-    print('Predicted output values:\n')
-    for val in y: print(f'{val:.4f}')
+    print("Predicted output values:\n")
+    for val in y: print(f"{val:.4f}")
     print()
 
     return 0
