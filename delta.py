@@ -2,6 +2,8 @@ import numpy as np
 import numpy.typing
 import random
 import time
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import plot_date
 
 import activation.sigmoid as sigmoid
 
@@ -68,12 +70,10 @@ def delta_main(processor_type: str, num_epochs: int):
         [0, 0, 1, 1]
     ])
 
-    # Initial weights(random between - 1 and 1)
+    # Initial weights (random between - 1 and 1)
     W: Tensor = np.zeros(X.shape[1])
     for n in range(W.shape[0]):
-        W[n] = 2 * random.random() - 0.5
-
-    W: Tensor = np.array([-0.4, 0.25, 0.95])
+        W[n] = 2 * (random.random() - 0.5)
 
     # Train model
     train_start = time.perf_counter()
@@ -100,8 +100,62 @@ def delta_main(processor_type: str, num_epochs: int):
     return 0
 
 # Main function for comparison
-def abtest() -> int:
-    return 0
+def abtest(num_epochs: int = 1000):
+    # Training inputs
+    X: Tensor = np.array([
+        [0, 0, 1],
+        [0, 1, 1],
+        [1, 0, 1],
+        [1, 1, 1]
+    ])
+
+    # Correct outputs(supervised)
+    D: Tensor = np.array([
+        [0, 0, 1, 1]
+    ])
+
+    error = [0.0, 0.0]
+    E1 = np.zeros(num_epochs)
+    E2 = E1.copy()
+
+    # Initial weights (random between - 1 and 1)
+    W1: Tensor = np.zeros(X.shape[1])
+    W2: Tensor = np.zeros(X.shape[1])
+    for n in range(W1.shape[0]):
+        W1[n] = W2[n] = 2 * (random.random() - 0.5)
+
+    # Infer data
+    y2 = y1 = np.zeros(num_epochs)
+    for epoch in range(num_epochs):
+        W1 = delta_sgd(W1, X, D)
+        W2 = delta_batch(W2, X, D)
+
+        es2 = es1 = 0.0
+
+        N = X.shape[0]
+        for k in range(N):
+            x = np.vstack(X[k, :])
+            d = D[0, k]
+
+            v1 = W1 @ x # weighted sum
+            y1 = sigmoid.calc(v1)
+            es1 += (d - y1) ** 2
+
+            v2 = W2 @ x
+            y2 = sigmoid.calc(v2)
+            es2 += (d - y2) ** 2
+
+        E1[epoch] = es1.item() / N
+        E2[epoch] = es2.item() / N
+
+    # Plot performance difference
+    plt.plot(E1)
+    plt.plot(E2)
+    plt.xlabel('Epochs')
+    plt.ylabel('Average of training error')
+    plt.title('Learning Rate: SGD vs Batch Methods')
+    plt.legend(['SGD', 'Batch'])
+    plt.show()
 
 # ====================================== #
 
